@@ -30,6 +30,12 @@ public class ChatBotServiceImpl implements ChatBotService {
 
 		ChatRoute route = chatRoutingService.route(text);
 
+		if (!"GENERAL".equals(route.category())) {
+			String reply = ChatFallbackReplies.fallback(route.category());
+			return ChatResponse.builder().reply(reply).fromKnowledge(false).category(route.category()).knowledgeId(null)
+					.build();
+		}
+
 		String keyword = route.keyword();
 		if (keyword == null || keyword.isBlank()) {
 			keyword = text;

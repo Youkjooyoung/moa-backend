@@ -10,6 +10,9 @@ import com.moa.service.chat.ChatRoutingService;
 @Service
 public class ChatRoutingServiceImpl implements ChatRoutingService {
 
+	private static final String CATEGORY_SIGNUP = "SIGNUP";
+	private static final String CATEGORY_LOGIN = "LOGIN";
+	private static final String CATEGORY_SOCIAL = "SOCIAL";
 	private static final String CATEGORY_SUBSCRIPTION = "SUBSCRIPTION";
 	private static final String CATEGORY_PAYMENT = "PAYMENT";
 	private static final String CATEGORY_PARTY = "PARTY";
@@ -26,6 +29,18 @@ public class ChatRoutingServiceImpl implements ChatRoutingService {
 
 		String normalized = normalize(text);
 
+		if (contains(normalized, "회원가입", "가입방법", "가입", "간편가입", "가입하기", "가입완료", "신규회원", "인증번호")) {
+			return new ChatRoute(CATEGORY_SIGNUP, "회원가입");
+		}
+
+		if (contains(normalized, "로그인", "로그아웃", "아이디", "비밀번호", "비번", "잠금", "계정잠금", "이메일찾기")) {
+			return new ChatRoute(CATEGORY_LOGIN, "로그인");
+		}
+
+		if (contains(normalized, "소셜", "카카오", "구글", "google", "kakao", "연동", "해제", "oauth")) {
+			return new ChatRoute(CATEGORY_SOCIAL, "소셜 로그인");
+		}
+
 		if (contains(normalized, "구독", "상품", "ott", "넷플릭스", "디즈니", "유튜브", "티빙", "웨이브", "챗gpt", "chatgpt",
 				"취소", "해지", "구독목록", "구독관리", "만료", "갱신")) {
 			return new ChatRoute(CATEGORY_SUBSCRIPTION, "구독 상품 관리");
@@ -41,9 +56,9 @@ public class ChatRoutingServiceImpl implements ChatRoutingService {
 			return new ChatRoute(CATEGORY_PARTY, "파티 모집 참여");
 		}
 
-		if (contains(normalized, "로그인", "회원가입", "계정", "비밀번호", "이메일", "휴대폰", "전화번호", "프로필",
-				"닉네임", "소셜", "카카오", "구글", "otp", "탈퇴", "마이페이지")) {
-			return new ChatRoute(CATEGORY_ACCOUNT, "계정 로그인 회원정보");
+		if (contains(normalized, "계정", "회원정보", "휴대폰", "전화번호", "프로필", "닉네임", "otp", "탈퇴", "마이페이지",
+				"정보수정", "수정")) {
+			return new ChatRoute(CATEGORY_ACCOUNT, "계정 회원정보");
 		}
 
 		if (contains(normalized, "알림", "푸시", "메일", "이메일인증", "인증메일", "읽지않은", "공지")) {
