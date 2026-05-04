@@ -392,24 +392,29 @@ public class UserServiceImpl implements UserService {
 		}
 
 		User user = userDao.findByUserId(userId).orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-
 		ensureNotBlocked(user);
 
+		File dir = new File(profileUploadDir);
+
 		try {
-			File dir = new File(profileUploadDir);
 			if (!dir.exists()) {
 				boolean created = dir.mkdirs();
-				if (!created) {
+				if (!created && !dir.exists()) {
 					throw new BusinessException(ErrorCode.INTERNAL_ERROR, "업로드 디렉토리 생성 실패");
 				}
 			}
 
-			String ext = StringUtils.getFilenameExtension(file.getOriginalFilename());
+			if (!dir.isDirectory() || !dir.canWrite()) {
+				throw new BusinessException(ErrorCode.INTERNAL_ERROR, "업로드 경로 쓰기 불가");
+			}
+
+			String originalName = file.getOriginalFilename();
+			String ext = StringUtils.getFilenameExtension(originalName);
 			if (ext == null || ext.isBlank()) {
 				ext = "png";
 			}
 
-			String newFileName = UUID.randomUUID() + "." + ext;
+			String newFileName = UUID.randomUUID().toString() + "." + ext;
 			File dest = new File(dir, newFileName);
 
 			file.transferTo(dest);
@@ -419,8 +424,13 @@ public class UserServiceImpl implements UserService {
 
 			return imageUrl;
 
+		} catch (BusinessException e) {
+			log.error("프로필 이미지 업로드 실패(BE) userId={}, dir='{}', exists={}, isDir={}, canWrite={}", userId,
+					profileUploadDir, dir.exists(), dir.isDirectory(), dir.canWrite(), e);
+			throw e;
 		} catch (Exception e) {
-			log.error("프로필 이미지 업로드 실패 userId={}, path={}", userId, profileUploadDir, e);
+			log.error("프로필 이미지 업로드 실패(EX) userId={}, dir='{}', exists={}, isDir={}, canWrite={}", userId,
+					profileUploadDir, dir.exists(), dir.isDirectory(), dir.canWrite(), e);
 			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "이미지 업로드 실패");
 		}
 	}

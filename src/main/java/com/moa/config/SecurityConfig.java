@@ -131,11 +131,18 @@ public class SecurityConfig {
 
 	    CorsConfiguration config = new CorsConfiguration();
 
-	    List<String> origins = List.of(allowedOrigins.split(","));
-	    config.setAllowedOriginPatterns(origins);
+	    List<String> origins = List.of(allowedOrigins.split(",")).stream()
+	    		.map(String::trim)
+	    		.filter(origin -> !origin.isBlank())
+	    		.toList();
+	    if (origins.stream().anyMatch(origin -> origin.contains("*"))) {
+	    	config.setAllowedOriginPatterns(origins);
+	    } else {
+	    	config.setAllowedOrigins(origins);
+	    }
 
 	    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-	    config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Refresh-Token", "Last-Event-ID", "*"));
+	    config.setAllowedHeaders(List.of("*"));
 	    config.setAllowCredentials(true);
 
 	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

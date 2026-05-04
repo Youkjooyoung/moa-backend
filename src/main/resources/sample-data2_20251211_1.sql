@@ -1465,14 +1465,6 @@ INSERT INTO USERS (
  1, 'LOCAL', NULL, 0
 );
 
-
--- CATEGORY: 상품 카테고리
-INSERT INTO CATEGORY (CATEGORY_ID, CATEGORY_NAME) VALUES
-(1, 'AI'),
-(2, 'MEDIA'),
-(3, 'EDU'),
-(4, 'MEMBER');
-
 -- PRODUCT: 상품 정보 (쿠팡플레이 삭제, 이미지 경로 업데이트)
 INSERT INTO `PRODUCT` (`PRODUCT_ID`, `CATEGORY_ID`, `PRODUCT_NAME`, `PRODUCT_STATUS`, `PRICE`, `IMAGE`, `MAX_SHARE`) VALUES
    (1, 1, 'Google AI Pro', 'ACTIVE', 17000, '/uploads/product-image/Google_AI_Logo.png', NULL),
