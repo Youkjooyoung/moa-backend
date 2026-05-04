@@ -1,5 +1,7 @@
 package com.moa.service.chat.impl;
 
+import java.util.Locale;
+
 import org.springframework.stereotype.Service;
 
 import com.moa.domain.ChatRoute;
@@ -8,45 +10,61 @@ import com.moa.service.chat.ChatRoutingService;
 @Service
 public class ChatRoutingServiceImpl implements ChatRoutingService {
 
+	private static final String CATEGORY_SUBSCRIPTION = "SUBSCRIPTION";
+	private static final String CATEGORY_PAYMENT = "PAYMENT";
+	private static final String CATEGORY_PARTY = "PARTY";
+	private static final String CATEGORY_ACCOUNT = "ACCOUNT";
+	private static final String CATEGORY_NOTIFICATION = "NOTIFICATION";
+	private static final String CATEGORY_SUPPORT = "SUPPORT";
+	private static final String CATEGORY_GENERAL = "GENERAL";
+
 	@Override
 	public ChatRoute route(String text) {
 		if (text == null || text.isBlank()) {
-			return new ChatRoute("기타", "");
+			return new ChatRoute(CATEGORY_GENERAL, "");
 		}
 
-		String normalized = text.replaceAll("\\s+", "");
+		String normalized = normalize(text);
 
-		if (contains(normalized, "구독", "상품", "OTT", "넷플릭스", "티빙", "웨이브", "디즈니", "요금제", "플랜", "멤버십")) {
-			return new ChatRoute("구독", "구독");
+		if (contains(normalized, "구독", "상품", "ott", "넷플릭스", "디즈니", "유튜브", "티빙", "웨이브", "챗gpt", "chatgpt",
+				"취소", "해지", "구독목록", "구독관리", "만료", "갱신")) {
+			return new ChatRoute(CATEGORY_SUBSCRIPTION, "구독 상품 관리");
 		}
 
-		if (contains(normalized, "결제", "카드", "청구", "요금", "환불", "결제수단", "자동결제", "무통장", "입금", "쿠폰", "포인트", "결제내역")) {
-			return new ChatRoute("결제", "결제");
+		if (contains(normalized, "결제", "카드", "포트원", "portone", "입금", "정산", "환불", "요금", "금액", "청구",
+				"자동결제", "결제일", "실패")) {
+			return new ChatRoute(CATEGORY_PAYMENT, "결제 정산 환불");
 		}
 
-		if (contains(normalized, "회원", "계정", "로그인", "비밀번호", "탈퇴", "닉네임", "프로필", "휴대폰", "휴대전화", "아이디", "이메일", "내정보",
-				"정보수정", "회원정보", "마이페이지", "연동", "소셜로그인", "카카오", "구글")) {
-			return new ChatRoute("계정", "계정");
+		if (contains(normalized, "파티", "모집", "참여", "파티장", "파티원", "나가기", "초대", "인원", "정원", "공유",
+				"멤버", "모집중", "마감")) {
+			return new ChatRoute(CATEGORY_PARTY, "파티 모집 참여");
 		}
 
-		if (contains(normalized, "파티", "모집", "참여", "참가", "파티장", "파티원", "구독공유", "호스트", "방장", "초대")) {
-			return new ChatRoute("파티", "파티");
+		if (contains(normalized, "로그인", "회원가입", "계정", "비밀번호", "이메일", "휴대폰", "전화번호", "프로필",
+				"닉네임", "소셜", "카카오", "구글", "otp", "탈퇴", "마이페이지")) {
+			return new ChatRoute(CATEGORY_ACCOUNT, "계정 로그인 회원정보");
 		}
 
-		if (contains(normalized, "정산", "수익", "지급", "출금", "정산일", "지갑", "잔액", "분배", "수수료", "정기정산")) {
-			return new ChatRoute("정산", "정산");
+		if (contains(normalized, "알림", "푸시", "메일", "이메일인증", "인증메일", "읽지않은", "공지")) {
+			return new ChatRoute(CATEGORY_NOTIFICATION, "알림 이메일 인증");
 		}
 
-		if (contains(normalized, "오류", "에러", "안열려", "안돼", "로딩", "버그", "튕김", "멈춤", "흰화면", "버튼안먹", "팝업안뜸")) {
-			return new ChatRoute("오류", "오류");
+		if (contains(normalized, "오류", "에러", "안돼", "안되", "문의", "고객센터", "버그", "장애", "문제", "도움",
+				"신고", "관리자")) {
+			return new ChatRoute(CATEGORY_SUPPORT, "오류 문의 고객지원");
 		}
 
-		return new ChatRoute("기타", text);
+		return new ChatRoute(CATEGORY_GENERAL, text.trim());
+	}
+
+	private String normalize(String text) {
+		return text.toLowerCase(Locale.ROOT).replaceAll("\\s+", "");
 	}
 
 	private boolean contains(String text, String... keywords) {
 		for (String keyword : keywords) {
-			if (text.contains(keyword)) {
+			if (text.contains(keyword.toLowerCase(Locale.ROOT).replaceAll("\\s+", ""))) {
 				return true;
 			}
 		}
