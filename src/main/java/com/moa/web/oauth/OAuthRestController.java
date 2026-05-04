@@ -63,7 +63,7 @@ public class OAuthRestController {
 
 		String url = "https://kauth.kakao.com/oauth/authorize" + "?client_id=" + kakao.getClientId() + "&redirect_uri="
 				+ URLEncoder.encode(redirectUri, StandardCharsets.UTF_8) + "&response_type=code" + "&state="
-				+ URLEncoder.encode(state, StandardCharsets.UTF_8);
+				+ URLEncoder.encode(state, StandardCharsets.UTF_8) + "&scope=account_email";
 
 		return ApiResponse.success(Map.of("url", url));
 	}
