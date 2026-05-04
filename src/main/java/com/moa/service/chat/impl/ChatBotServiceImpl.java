@@ -26,7 +26,7 @@ public class ChatBotServiceImpl implements ChatBotService {
 
 	@Override
 	public ChatResponse chat(ChatRequest request) {
-		String text = request.getMessage();
+		String text = request.getMessage() == null ? "" : request.getMessage().trim();
 
 		ChatRoute route = chatRoutingService.route(text);
 
@@ -44,8 +44,28 @@ public class ChatBotServiceImpl implements ChatBotService {
 		}
 
 		ChatKnowledge top = hits.get(0);
+		String answer = top.getAnswer();
+		if (!isUsableAnswer(answer)) {
+			String fallback = ChatFallbackReplies.fallback(route.category());
+			return ChatResponse.builder().reply(fallback).fromKnowledge(false).category(route.category())
+					.knowledgeId(top.getId()).build();
+		}
 
-		return ChatResponse.builder().reply(top.getAnswer()).fromKnowledge(true).category(top.getCategory())
+		return ChatResponse.builder().reply(answer.trim()).fromKnowledge(true).category(top.getCategory())
 				.knowledgeId(top.getId()).build();
+	}
+
+	private boolean isUsableAnswer(String answer) {
+		if (answer == null || answer.isBlank()) {
+			return false;
+		}
+
+		String value = answer.trim();
+		if (value.length() < 8) {
+			return false;
+		}
+
+		return !(value.contains("�") || value.contains("æ") || value.contains("ì") || value.contains("ë")
+				|| value.contains("Â") || value.contains("Ñ") || value.contains("å¯"));
 	}
 }
