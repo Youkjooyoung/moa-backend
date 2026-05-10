@@ -23,11 +23,11 @@
 		parameterType="com.moa.domain.Account" useGeneratedKeys="true"
 		keyProperty="accountId" keyColumn="ACCOUNT_ID">
 		INSERT INTO ACCOUNT (
-		USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, IS_VERIFIED,
-		REG_DATE
+		USER_ID, BANK_CODE, BANK_NAME, ACCOUNT_NUMBER, ACCOUNT_HOLDER, FINTECH_USE_NUM,
+		STATUS, IS_VERIFIED, REG_DATE, VERIFY_DATE
 		) VALUES (
-		#{userId}, #{bankCode}, #{bankName}, #{accountNumber}, #{accountHolder},
-		#{isVerified}, NOW()
+		#{userId}, #{bankCode}, #{bankName}, #{accountNumber}, #{accountHolder}, #{fintechUseNum},
+		#{status}, #{isVerified}, NOW(), NOW()
 		)
 	</insert>
 
