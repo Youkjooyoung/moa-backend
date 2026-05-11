@@ -1,6 +1,7 @@
 package com.moa.dto.product;
 
 import com.moa.domain.Product;
+import com.moa.common.util.ProductImageUrlResolver;
 import lombok.Data;
 
 @Data
@@ -12,6 +13,18 @@ public class ProductDTO {
     private int price;
     private String image;
     private String categoryName;
+
+    public String getLogoUrl() {
+        return ProductImageUrlResolver.logoUrl(image);
+    }
+
+    public String getThumbnailUrl() {
+        return ProductImageUrlResolver.thumbnailUrl(image);
+    }
+
+    public String getIconUrl() {
+        return ProductImageUrlResolver.iconUrl(image);
+    }
 
     public Product toEntity() {
         Product product = new Product();

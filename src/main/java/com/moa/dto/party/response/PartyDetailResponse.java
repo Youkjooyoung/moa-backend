@@ -3,6 +3,8 @@ package com.moa.dto.party.response;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.moa.common.util.ProductImageUrlResolver;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +34,18 @@ public class PartyDetailResponse {
 	private String productName;
 	private String productImage;
 	private Integer price;
+
+	public String getProductLogoUrl() {
+		return ProductImageUrlResolver.logoUrl(productImage);
+	}
+
+	public String getProductThumbnailUrl() {
+		return ProductImageUrlResolver.thumbnailUrl(productImage);
+	}
+
+	public String getProductIconUrl() {
+		return ProductImageUrlResolver.iconUrl(productImage);
+	}
 
 	private String leaderNickname;
 	private String leaderProfileImage;
