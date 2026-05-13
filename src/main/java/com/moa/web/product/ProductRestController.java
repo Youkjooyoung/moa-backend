@@ -15,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/product")
+@SuppressWarnings("null")
 public class ProductRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -159,7 +160,7 @@ public class ProductRestController {
                 return combinePath(urlPrefix, savedLogoFilename);
             } else {
                 // 아이콘만 업로드한 경우 - 아이콘 URL 반환 (또는 빈 문자열)
-                String iconFilename = baseName + "_icon" + getFileExtension(iconFile.getOriginalFilename());
+                String iconFilename = baseName + "_icon" + getFileExtension(iconFile != null ? iconFile.getOriginalFilename() : "");
                 return combinePath(urlPrefix, iconFilename);
             }
         } catch (Exception e) {

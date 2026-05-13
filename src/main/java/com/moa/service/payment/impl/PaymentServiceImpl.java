@@ -14,7 +14,6 @@ import com.moa.common.event.MonthlyPaymentFailedEvent;
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
 import com.moa.dao.party.PartyDao;
-import com.moa.dao.partymember.PartyMemberDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.product.ProductDao;
 import com.moa.dao.user.UserCardDao;

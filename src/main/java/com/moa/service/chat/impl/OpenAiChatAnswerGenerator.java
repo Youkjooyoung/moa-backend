@@ -19,6 +19,7 @@ import com.moa.domain.ChatRoute;
 import com.moa.service.chat.ChatAnswerGenerator;
 
 @Service
+@SuppressWarnings("null")
 public class OpenAiChatAnswerGenerator implements ChatAnswerGenerator {
 
 	private static final Logger log = LoggerFactory.getLogger(OpenAiChatAnswerGenerator.class);

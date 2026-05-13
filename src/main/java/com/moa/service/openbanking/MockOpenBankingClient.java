@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 @Profile("!prod")
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class MockOpenBankingClient implements OpenBankingClient {
 
     private final WebClient.Builder webClientBuilder;

@@ -104,7 +104,7 @@ public class PartyServiceImpl implements PartyService {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "null"})
 	public PartyDetailResponse processLeaderDeposit(Integer partyId, String userId, PaymentRequest paymentRequest) {
 		Party party = partyDao.findById(partyId).orElseThrow(() -> new BusinessException(ErrorCode.PARTY_NOT_FOUND));
 

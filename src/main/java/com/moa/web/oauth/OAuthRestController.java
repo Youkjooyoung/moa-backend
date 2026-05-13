@@ -43,6 +43,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/oauth")
 @RequiredArgsConstructor
+@SuppressWarnings({"unchecked", "null"})
 public class OAuthRestController {
 
 	@Value("${app.frontend-url}")
@@ -87,6 +88,9 @@ public class OAuthRestController {
 		Map<String, Object> tokenResponse = rest.postForObject("https://kauth.kakao.com/oauth/token",
 				new HttpEntity<>(params, headers), Map.class);
 
+		if (tokenResponse == null) {
+			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "카카오 토큰 응답이 비어있습니다.");
+		}
 		String kakaoAccessToken = (String) tokenResponse.get("access_token");
 
 		HttpHeaders profileHeader = new HttpHeaders();
@@ -95,6 +99,9 @@ public class OAuthRestController {
 		Map<String, Object> profile = rest.exchange("https://kapi.kakao.com/v2/user/me", HttpMethod.GET,
 				new HttpEntity<>(profileHeader), Map.class).getBody();
 
+		if (profile == null) {
+			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "카카오 프로필 응답이 비어있습니다.");
+		}
 		String provider = "kakao";
 		String providerUserId = String.valueOf(profile.get("id"));
 
@@ -198,6 +205,9 @@ public class OAuthRestController {
 		Map<String, Object> tokenResponse = rest.postForObject("https://oauth2.googleapis.com/token",
 				new HttpEntity<>(params, headers), Map.class);
 
+		if (tokenResponse == null) {
+			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "구글 토큰 응답이 비어있습니다.");
+		}
 		String accessToken = (String) tokenResponse.get("access_token");
 
 		HttpHeaders profileHeader = new HttpHeaders();
@@ -206,6 +216,9 @@ public class OAuthRestController {
 		Map<String, Object> profile = rest.exchange("https://openidconnect.googleapis.com/v1/userinfo", HttpMethod.GET,
 				new HttpEntity<>(profileHeader), Map.class).getBody();
 
+		if (profile == null) {
+			throw new BusinessException(ErrorCode.INTERNAL_ERROR, "구글 프로필 응답이 비어있습니다.");
+		}
 		String provider = "google";
 		String providerUserId = (String) profile.get("sub");
 		String email = (String) profile.get("email");
@@ -358,6 +371,9 @@ public class OAuthRestController {
 	public ApiResponse<List<OAuthAccount>> getOAuthList() {
 		ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
+		if (attrs == null) {
+			return ApiResponse.error(ErrorCode.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
 		HttpSession session = attrs.getRequest().getSession();
 		String userId = (String) session.getAttribute("LOGIN_USER_ID");
 

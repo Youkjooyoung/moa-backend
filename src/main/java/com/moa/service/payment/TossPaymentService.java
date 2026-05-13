@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("null")
 public class TossPaymentService {
 
     private final TossPaymentConfig tossPaymentConfig;

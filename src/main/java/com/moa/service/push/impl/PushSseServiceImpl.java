@@ -13,6 +13,7 @@ import com.moa.dto.push.response.PushResponse;
 import com.moa.service.push.PushSseService;
 
 @Service
+@SuppressWarnings("null")
 public class PushSseServiceImpl implements PushSseService {
 
 	private final ConcurrentHashMap<String, CopyOnWriteArrayList<SseEmitter>> emitters = new ConcurrentHashMap<>();

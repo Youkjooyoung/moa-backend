@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings({"unchecked", "null"})
 public class PassAuthServiceImpl implements PassAuthService {
 
 	private final RestTemplate restTemplate = new RestTemplate();
@@ -57,8 +58,8 @@ public class PassAuthServiceImpl implements PassAuthService {
 
 			HttpEntity<?> req = new HttpEntity<>(headers);
 
-			ResponseEntity<Map> res = restTemplate.exchange("https://api.iamport.kr/certifications/" + impUid,
-					HttpMethod.GET, req, Map.class);
+			ResponseEntity<Map<String, Object>> res = restTemplate.exchange("https://api.iamport.kr/certifications/" + impUid,
+					HttpMethod.GET, req, new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
 			Map<String, Object> body = res.getBody();
 			if (body == null || body.get("response") == null) {
@@ -96,10 +97,14 @@ public class PassAuthServiceImpl implements PassAuthService {
 
 		HttpEntity<Map<String, String>> req = new HttpEntity<>(body, headers);
 
-		ResponseEntity<Map> res = restTemplate.exchange("https://api.iamport.kr/users/getToken", HttpMethod.POST, req,
-				Map.class);
+		ResponseEntity<Map<String, Object>> res = restTemplate.exchange("https://api.iamport.kr/users/getToken", HttpMethod.POST, req,
+				new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
-		Map<String, Object> response = (Map<String, Object>) res.getBody().get("response");
+		Map<String, Object> body = res.getBody();
+		if (body == null || body.get("response") == null) {
+			throw new RuntimeException("토큰 응답이 비어있습니다.");
+		}
+		Map<String, Object> response = (Map<String, Object>) body.get("response");
 		return (String) response.get("access_token");
 	}
 }
