@@ -1,689 +1,92 @@
-# MOA (모아) - OTT 구독 공유 플랫폼 백엔드
+![MOA 프로젝트 로고](./moa_logo.png)
 
-<div align="center">
+# MOA (모아) - OTT 구독 공유 플랫폼 (Backend)
 
-**4beans 팀이 만든 OTT 구독을 함께 모아 쓰는 플랫폼**
+## 1. 프로젝트 선정 이유
 
-[![Java](https://img.shields.io/badge/Java-17-007396?logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.8-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
-[![Maven](https://img.shields.io/badge/Maven-3.x-C71A36?logo=apachemaven&logoColor=white)](https://maven.apache.org/)
+최근 여러 OTT 서비스를 동시에 구독하는 사용자가 늘어나면서 **구독료 부담**이 크게 증가하고 있습니다. 이를 해결하기 위해 계정을 공유하는 커뮤니티가 활성화되었으나, 신뢰 문제와 수동 정산의 번거로움이 존재했습니다.
 
-</div>
+| 기존 방식의 문제점 | MOA(모아)의 해결책 | 기대 효과 |
+| :--- | :--- | :--- |
+| **신뢰 부족** (파티장 잠적, 파티원 미납) | **보증금 시스템 도입** (가입 시 예치, 위약 시 패널티) | 안전하고 신뢰할 수 있는 공유 환경 조성 |
+| **수동 정산의 번거로움** (매월 입금 확인) | **자동 결제 및 정산 아키텍처** (빌링키 기반) | 사용자의 개입 없이 매월 자동으로 요금 처리 |
 
----
-
-## 📌 프로젝트 소개
-
-**MOA(모아)**는 Netflix, Disney+, Wavve 등 OTT 구독 서비스를 함께 공유하여 비용을 절감할 수 있는 중개 플랫폼의 백엔드 시스템입니다.
-
-### 핵심 비즈니스 모델
-
-- **파티장**이 OTT 계정을 생성하고 **파티원**을 모집
-- **보증금 시스템**을 통한 신뢰성 있는 공유 환경 제공
-- **자동 결제** 및 **월간 정산**으로 편리한 운영
-- 파티원은 저렴한 월회비로 OTT 서비스 이용
-
-### 해결하는 문제
-
-1. 높은 OTT 구독 비용 → 여러 명이 나눠서 부담
-2. 공유 시 신뢰 문제 → 보증금 시스템으로 해결
-3. 수동 정산의 번거로움 → 자동 결제 및 정산
+MOA 프로젝트는 이러한 시스템적 해결책을 통해 사용자들이 안전하고 편리하게 OTT 구독을 공유할 수 있는 중개 플랫폼을 구축하고자 선정되었습니다.
 
 ---
 
-## ✨ 주요 기능
+## 2. 요구사항 정의서
 
-### 🎭 파티 관리
-- 파티 생성 및 멤버 모집
-- 파티 상태 관리 (모집중, 활성, 종료)
-- 파티장/파티원 역할 구분
-- OTT 계정 정보 공유
+본 프로젝트의 핵심 비즈니스 및 기술 요구사항은 다음과 같습니다.
 
-### 💰 보증금 시스템
-- **파티장 보증금**: 상품 가격 전액 (예: 13,000원)
-- **파티원 보증금**: 인당 분담금 (예: 3,250원)
-- 파티 종료 시 자동 환불
-- 위약 시 보증금 차감
-
-### 💳 자동 결제 및 정산
-- **토스 페이먼츠** 빌링키 기반 자동 결제
-- 매월 자동 월회비 청구
-- 결제 실패 시 최대 4회 자동 재시도
-- 파티장에게 매월 자동 정산 (수수료 15%)
-
-### 🏦 오픈뱅킹 연동
-- **1원 인증**을 통한 계좌 소유권 검증
-- 정산금 자동 이체 준비 (추후 오픈뱅킹 API 연동 시 확장 가능)
-- 확장 가능한 계좌 인증 아키텍처
-
-### 🔐 보안 및 인증
-- **JWT** 기반 무상태 인증 (Access + Refresh Token)
-- **Google OTP** 2단계 인증 지원
-- **OAuth 2.0** 소셜 로그인 (Kakao, Google)
-- 계정 잠금 정책 (5회 실패 시 자동 잠금)
-- 본인인증 연동 (PASS)
-
-### 🔔 알림 시스템
-- **SSE(Server-Sent Events)** 기반 실시간 알림
-- 결제, 정산, 파티 가입 등 이벤트 알림
-- 템플릿 기반 알림 메시지
-
-### 👥 커뮤니티
-- 공지사항, FAQ, 1:1 문의 게시판
-- 관리자 대시보드
+| 구분 | 요구사항 명 | 상세 내용 |
+| :--- | :--- | :--- |
+| **비즈니스** | 파티 매칭 및 보증금 | 파티장/파티원은 가입 시 보증금을 결제하며, 규칙 위반 시 보증금을 차감함. |
+| **비즈니스** | 자동 월회비 결제 | 등록된 카드를 통해 파티원에게 매월 지정된 날짜에 월회비가 자동 청구됨. |
+| **비즈니스** | 자동 정산 처리 | 파티장에게 매월 수수료를 제외한 금액이 자동으로 정산됨. |
+| **금융/결제** | PG사 연동 및 빌링키 | 토스 페이먼츠 API를 연동하여 카드 빌링키 발급 및 스케줄러 기반 결제 처리. |
+| **보안/인증** | 1원 계좌 인증 | 오픈뱅킹 API를 연동해 정산 계좌의 실소유주를 검증함. |
+| **보안/인증** | 하이브리드 인증 시스템 | JWT(Stateless) 기반 API 인증 및 OAuth 2.0, 2FA(Google OTP) 다중 인증 지원. |
 
 ---
 
-## 🛠 기술 스택
+## 3. 분석 (기술 스택)
 
-### Backend
-- **Language**: Java 17
-- **Framework**: Spring Boot 3.5.8
-- **ORM**: MyBatis 3.0.3
-- **Build Tool**: Maven
+요구사항을 충족하기 위해 최적의 성능과 확장성을 고려하여 기술 스택을 선정했습니다.
 
-### Database
-- **RDBMS**: MySQL 8.0+
-- **Test DB**: H2 (in-memory)
-
-### Authentication & Security
-- **JWT**: jjwt 0.11.5
-- **2FA**: TOTP (Google OTP) 1.7.1
-- **Spring Security**: 인가 및 권한 관리
-
-### External Services
-- **Payment**: Toss Payments (빌링키 기반 자동결제)
-- **Banking**: Open Banking API (1원 인증)
-- **OAuth**: Kakao, Google
-- **Email**: Resend 3.1.0
-- **Identity Verification**: PASS 본인인증
-
-### Testing
-- JUnit 5, Mockito
-- Spring Boot Test
-- jqwik (Property-Based Testing)
+| 분류 | 기술 스택 (Tech Stack) | 선정 이유 |
+| :--- | :--- | :--- |
+| **Backend** | ![Java](https://img.shields.io/badge/Java-17-007396?style=flat-square&logo=openjdk&logoColor=white) ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.8-6DB33F?style=flat-square&logo=springboot&logoColor=white) | 엔터프라이즈 환경에서의 안정성 및 방대한 생태계 활용 |
+| **DB / ORM** | ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat-square&logo=mysql&logoColor=white) ![MyBatis](https://img.shields.io/badge/MyBatis-3.0.3-black?style=flat-square) | 복잡한 금융/정산 통계 쿼리의 세밀한 튜닝 및 제어 용이 |
+| **Frontend** | ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white) ![TailwindCSS](https://img.shields.io/badge/Tailwind-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white) | 빠른 렌더링 속도와 컴포넌트 기반 UI 개발의 효율성 극대화 |
+| **State** | ![Zustand](https://img.shields.io/badge/Zustand-764ABC?style=flat-square) | Redux 대비 보일러플레이트가 적고 직관적인 전역 상태 관리 |
+| **External API** | ![Toss Payments](https://img.shields.io/badge/Toss_Payments-3182F6?style=flat-square&logo=toss&logoColor=white) ![Google OTP](https://img.shields.io/badge/Google_Authenticator-4285F4?style=flat-square&logo=google-authenticator&logoColor=white) | 압도적인 개발자 경험(DX)을 제공하는 토스 페이먼츠 및 보안 강화 |
+| **Infra & Deploy** | ![MobaXterm](https://img.shields.io/badge/MobaXterm-0040FF?style=flat-square) ![AWS CloudFront](https://img.shields.io/badge/AWS_CloudFront-232F3E?style=flat-square&logo=amazon-aws&logoColor=white) ![AWS S3](https://img.shields.io/badge/AWS_S3-569A31?style=flat-square&logo=amazon-s3&logoColor=white) | MobaXterm을 통한 운영 백엔드 배포 및 S3(이미지 스토리지)와 연동된 CloudFront를 통한 프론트엔드 최적화 배포 |
+| **IDE & AI** | ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-000000?style=flat-square&logo=intellij-idea&logoColor=white) ![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white) ![Antigravity](https://img.shields.io/badge/Antigravity_AI-FF6F00?style=flat-square) | 개발 환경 구축 및 AI 페어 프로그래밍(Antigravity)을 통한 개발 생산성 및 보안/아키텍처 고도화 |
 
 ---
 
-## 🏗 시스템 아키텍처
+## 4. 설계
 
-### 계층형 아키텍처 (Layered Architecture)
+### 4.1 시스템 및 데이터베이스 설계
+시스템은 총 27개의 테이블로 고도로 정규화되어 있으며, 각 도메인별 관심사가 철저히 분리되어 있습니다.
 
-```
-┌─────────────────────────────────────────┐
-│         Client (Web/Mobile)             │
-└─────────────────────────────────────────┘
-                   ↓ HTTPS/REST API
-┌─────────────────────────────────────────┐
-│      Controller Layer (REST API)        │
-│   - AuthRestController                  │
-│   - PartyRestController                 │
-│   - PaymentRestController               │
-│   - SettlementRestController            │
-└─────────────────────────────────────────┘
-                   ↓
-┌─────────────────────────────────────────┐
-│      Service Layer (Business Logic)     │
-│   - PartyService                        │
-│   - PaymentService                      │
-│   - SettlementService                   │
-│   - OpenBankingService                  │
-└─────────────────────────────────────────┘
-                   ↓
-┌─────────────────────────────────────────┐
-│       DAO Layer (Data Access)           │
-│   - MyBatis Mappers                     │
-│   - 24 XML Mapper Files                 │
-└─────────────────────────────────────────┘
-                   ↓
-┌─────────────────────────────────────────┐
-│         Database (MySQL)                │
-│   - 27 Tables                           │
-└─────────────────────────────────────────┘
-```
+| 도메인 | 주요 테이블 | 설계 의도 및 역할 |
+| :--- | :--- | :--- |
+| **유저 (User)** | `USERS`, `ACCOUNT`, `USER_CARD` | 유저 기본 정보와 정산용 계좌, 자동결제용 카드를 분리하여 보안성 강화 |
+| **파티 (Party)** | `PARTY`, `PARTY_MEMBER` | 파티장과 파티원 간의 N:M 관계를 해소하고 멤버별 상태(위약, 정상) 관리 |
+| **결제 (Finance)**| `PAYMENT`, `DEPOSIT`, `SETTLEMENT` | 월회비, 보증금, 정산금의 트랜잭션을 철저히 분리하여 회계 무결성 확보 |
 
-### 핵심 비즈니스 플로우
+### 4.2 스케줄러 (자동화 배치) 설계
+수동 개입을 최소화하기 위해 8개의 핵심 스케줄러를 설계하여 운영합니다.
 
-```
-파티 생성 → 방장 보증금 결제 → 파티원 모집 → 파티원 가입 (보증금+첫달)
-                                      ↓
-                              파티 활성화 (정원 충족)
-                                      ↓
-                    매월 자동 월회비 결제 (Scheduler)
-                                      ↓
-                      매월 파티장 정산 (Scheduler)
-                                      ↓
-                    파티 종료 → 보증금 환불 (Scheduler)
-```
+| 스케줄러 명 | 실행 주기 | 주요 역할 |
+| :--- | :--- | :--- |
+| **SettlementScheduler** | 매월 1일 04:00 | 활성화된 파티의 정산 금액을 계산하여 월간 정산 데이터 생성 |
+| **PaymentScheduler** | 파티 지정일 | 멤버별로 등록된 빌링키를 호출하여 월회비 자동 결제 수행 |
+| **PaymentTimeoutScheduler** | 매 30분 | 잔액 부족 등으로 실패한 결제를 찾아 **최대 4회 점진적 재시도** 수행 |
+| **PartyCloseScheduler** | 매일 자정 | 약정 기간이 종료된 파티를 자동 해산하고 보증금을 환불 처리 |
 
 ---
 
-## 🚀 시작하기 (로컬 개발)
+## 5. 구현
 
-### 1. 사전 요구사항
+설계를 바탕으로 다음과 같은 핵심 아키텍처와 로직을 구현했습니다.
 
-다음 프로그램들이 설치되어 있어야 합니다:
+### 5.1 자동 결제 및 재시도(Retry) 메커니즘
+토스 페이먼츠 API를 활용하여 카드 빌링키 발급 및 결제를 구현했습니다. 특히, 잔액 부족이나 외부 API 통신 장애로 결제가 실패할 경우를 대비하여 `PAYMENT_RETRY_HISTORY` 이력 테이블을 구현하고, 최대 4회까지 재시도하는 **견고한(Robust) 결제 파이프라인**을 완성했습니다.
 
-- **Java 17** 이상
-- **Maven 3.x** (또는 내장된 Maven Wrapper 사용)
-- **MySQL 8.0** 이상
-- **Git**
-
-### 2. 저장소 클론
-
-```bash
-git clone https://github.com/yourusername/4beans-moa-back.git
-cd 4beans-moa-back
-```
-
-### 3. 데이터베이스 설정
-
-#### 3.1 데이터베이스 생성
-
-```bash
-mysql -u root -p
-```
-
-```sql
-CREATE DATABASE moa CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-exit;
-```
-
-#### 3.2 스키마 적용
-
-```bash
-mysql -u root -p moa < src/main/resources/moa_schema_20251211_1.sql
-```
-
-#### 3.3 샘플 데이터 적용 (선택사항)
-
-```bash
-mysql -u root -p moa < src/main/resources/sample-data2_20251211_1.sql
-```
-
-### 4. 환경 변수 설정
-
-#### 4.1 application-secret.properties 파일 생성
-
-프로젝트 루트에 제공된 템플릿을 복사합니다:
-
-```bash
-cp src/main/resources/application-secret.properties.example src/main/resources/application-secret.properties
-```
-
-#### 4.2 필요한 환경 변수
-
-`src/main/resources/application-secret.properties` 파일을 열고 다음 값들을 설정하세요:
-
-```properties
-# 데이터베이스
-spring.datasource.username=your_db_username
-spring.datasource.password=your_db_password
-
-# JWT (랜덤 문자열 생성 권장)
-jwt.secret=your-secret-key-at-least-256-bits
-jwt.access-token-expire-time=3600000
-jwt.refresh-token-expire-time=604800000
-
-# 토스 페이먼츠
-toss.payments.secret-key=test_sk_xxxxxxxxxxxxxxxx
-toss.payments.client-key=test_ck_xxxxxxxxxxxxxxxx
-
-# 오픈뱅킹
-openbanking.client-id=your-client-id
-openbanking.client-secret=your-client-secret
-openbanking.platform.access-token=your-platform-token
-
-# OAuth 2.0
-oauth.kakao.client-id=your-kakao-client-id
-oauth.kakao.client-secret=your-kakao-client-secret
-oauth.google.client-id=your-google-client-id
-oauth.google.client-secret=your-google-client-secret
-
-# Resend (이메일)
-resend.api-key=re_xxxxxxxxxxxxxxxx
-
-# PASS 본인인증
-pass.api-key=your-pass-api-key
-pass.api-secret=your-pass-api-secret
-```
-
-> **참고**: 실제 API 키는 각 서비스의 개발자 콘솔에서 발급받아야 합니다.
-
-### 5. 빌드
-
-#### Maven Wrapper 사용 (권장)
-
-```bash
-# Unix/Linux/macOS
-./mvnw clean package
-
-# Windows
-mvnw.cmd clean package
-```
-
-#### 시스템 Maven 사용
-
-```bash
-mvn clean package
-```
-
-#### 테스트 제외 빌드
-
-```bash
-./mvnw clean package -DskipTests
-```
-
-### 6. 실행
-
-#### 로컬 환경 실행
-
-```bash
-./mvnw spring-boot:run
-```
-
-#### WAR 파일로 실행
-
-```bash
-java -jar target/moa-0.0.1-SNAPSHOT.war
-```
-
-#### 특정 프로필로 실행
-
-```bash
-# 로컬 환경
-java -jar target/moa-0.0.1-SNAPSHOT.war --spring.profiles.active=local
-
-# 운영 환경
-java -jar target/moa-0.0.1-SNAPSHOT.war --spring.profiles.active=prod
-```
-
-### 7. 접속 확인
-
-서버가 정상적으로 실행되면 다음 주소로 접속할 수 있습니다:
-
-- **로컬**: http://localhost:8080
-- **Health Check**: http://localhost:8080/actuator/health (설정된 경우)
+### 5.2 보안 및 1원 인증
+Access Token(1시간)과 Refresh Token(7일)을 사용하는 JWT 인증 체계를 도입했습니다. XSS 방어를 위해 토큰은 HttpOnly 쿠키로 관리하며, 파티장 정산의 정확성을 위해 금융결제원 오픈뱅킹 API를 연동해 **'1원 송금 및 인증번호 검증' 모듈**을 구현하여 계좌 실소유주를 완벽히 검증합니다.
 
 ---
 
-## 📡 주요 API 엔드포인트
-
-### 인증 (Authentication)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | 로그인 (이메일/비밀번호) |
-| POST | `/api/auth/logout` | 로그아웃 |
-| POST | `/api/auth/refresh` | 토큰 갱신 |
-| POST | `/api/auth/otp/setup` | Google OTP 설정 |
-| POST | `/api/auth/otp/verify` | OTP 검증 |
-
-### 사용자 (User)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/users/me` | 내 정보 조회 |
-| PUT | `/api/users/me` | 내 정보 수정 |
-| POST | `/api/users/updatePwd` | 비밀번호 변경 |
-| POST | `/api/users/me/card` | 카드 등록 (자동결제) |
-| GET | `/api/users/me/account` | 정산 계좌 조회 |
-
-### 파티 (Party)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/parties` | 파티 생성 |
-| GET | `/api/parties` | 파티 목록 조회 (필터링/페이징) |
-| GET | `/api/parties/{partyId}` | 파티 상세 조회 |
-| POST | `/api/parties/{partyId}/join` | 파티 가입 |
-| DELETE | `/api/parties/{partyId}/leave` | 파티 탈퇴 |
-| GET | `/api/parties/my` | 내가 가입한 파티 목록 |
-
-### 결제 (Payment)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/payments/my` | 내 결제 내역 |
-| GET | `/api/v1/payments/{paymentId}` | 결제 상세 조회 |
-| GET | `/api/v1/payments/party/{partyId}` | 파티별 결제 내역 |
-
-### 보증금 (Deposit)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/deposits/my` | 내 보증금 내역 |
-| GET | `/api/deposits/party/{partyId}` | 파티별 보증금 내역 |
-
-### 정산 (Settlement)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/settlements/my` | 내 정산 내역 (방장용) |
-| GET | `/api/settlements/{settlementId}/details` | 정산 상세 내역 |
-
-### 오픈뱅킹 (Open Banking)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/openbanking/auth-url` | 오픈뱅킹 인증 URL 생성 |
-| GET | `/api/openbanking/callback` | OAuth 콜백 |
-| POST | `/api/openbanking/send-verification` | 1원 인증 시작 |
-| POST | `/api/openbanking/verify` | 1원 인증 검증 |
-
-### 상품 (Product)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/product` | 상품 목록 조회 (OTT 서비스) |
-| GET | `/api/product/{productId}` | 상품 상세 조회 |
-
----
-
-## 📂 프로젝트 구조
-
-```
-4beans-moa-back/
-├── src/
-│   ├── main/
-│   │   ├── java/com/moa/
-│   │   │   ├── MoaApplication.java        # 메인 애플리케이션
-│   │   │   ├── auth/                      # 인증/인가
-│   │   │   ├── common/                    # 공통 모듈
-│   │   │   │   ├── exception/             # 예외 처리
-│   │   │   │   ├── aspect/                # AOP
-│   │   │   │   ├── filter/                # 필터
-│   │   │   │   └── util/                  # 유틸리티
-│   │   │   ├── config/                    # 설정 파일
-│   │   │   │   ├── SecurityConfig.java    # Spring Security
-│   │   │   │   ├── WebConfig.java         # CORS 등
-│   │   │   │   └── ...
-│   │   │   ├── dao/                       # 데이터 접근 계층 (MyBatis)
-│   │   │   │   ├── party/
-│   │   │   │   ├── payment/
-│   │   │   │   ├── settlement/
-│   │   │   │   └── ...
-│   │   │   ├── domain/                    # 엔티티 모델
-│   │   │   ├── dto/                       # 데이터 전송 객체
-│   │   │   ├── scheduler/                 # 스케줄러
-│   │   │   │   ├── PaymentScheduler.java
-│   │   │   │   ├── SettlementScheduler.java
-│   │   │   │   └── ...
-│   │   │   ├── service/                   # 비즈니스 로직
-│   │   │   │   ├── party/
-│   │   │   │   ├── payment/
-│   │   │   │   ├── settlement/
-│   │   │   │   └── ...
-│   │   │   └── web/                       # 컨트롤러 계층
-│   │   │       ├── auth/
-│   │   │       ├── party/
-│   │   │       ├── payment/
-│   │   │       └── ...
-│   │   └── resources/
-│   │       ├── sql/                       # MyBatis Mapper XML (24개)
-│   │       ├── templates/email/           # 이메일 템플릿
-│   │       ├── static/                    # 정적 파일
-│   │       ├── data/                      # 샘플 데이터
-│   │       ├── application.properties
-│   │       ├── application-local.properties
-│   │       ├── application-prod.properties
-│   │       └── moa_schema_20251211_1.sql  # DB 스키마
-│   └── test/                              # 테스트 코드
-├── uploads/                               # 파일 업로드
-│   ├── user/profile/
-│   └── product-image/
-├── pom.xml                                # Maven 설정
-├── mvnw, mvnw.cmd                         # Maven Wrapper
-└── README.md
-```
-
-### 주요 패키지 설명
-
-- **auth**: JWT 필터, 토큰 프로바이더, 인증 핸들러
-- **common**: 공통 예외, AOP, 유틸리티 클래스
-- **config**: Spring 설정 (Security, Web, MyBatis 등)
-- **dao**: MyBatis 인터페이스 (Mapper)
-- **domain**: 엔티티 클래스 (Party, Payment, User 등)
-- **dto**: Request/Response DTO
-- **scheduler**: 자동화 작업 (정산, 결제, 환불 등)
-- **service**: 비즈니스 로직
-- **web**: REST API 컨트롤러
-
----
-
-## ⏰ 자동화 시스템 (Scheduler)
-
-MOA 플랫폼은 8개의 스케줄러를 통해 핵심 비즈니스 로직을 자동화합니다.
-
-| 스케줄러 | 실행 주기 | 역할 |
-|---------|----------|------|
-| **SettlementScheduler** | 매월 1일 04:00 | 월간 정산 생성 및 이체 |
-| **SettlementTransferScheduler** | 매시간 | 정산금 오픈뱅킹 이체 자동화 |
-| **PaymentScheduler** | 매월 특정일 | 월회비 자동 결제 |
-| **PaymentTimeoutScheduler** | 매 30분 | 결제 실패 재시도 (최대 4회) |
-| **RefundScheduler** | 매 30분 | 보증금 자동 환불 처리 |
-| **PartyCloseScheduler** | 매일 자정 | 종료 예정 파티 자동 종료 |
-| **ExpiredPartyCleanupScheduler** | 매일 03:00 | 만료된 파티 정리 |
-| **PendingDepositCleanupScheduler** | 매일 02:00 | 대기 중인 보증금 정리 |
-
-### 재시도 메커니즘
-
-결제, 환불, 정산 실패 시 자동으로 재시도하며, 모든 재시도 이력은 DB에 기록됩니다:
-
-- **PAYMENT_RETRY_HISTORY**: 결제 재시도 이력
-- **REFUND_RETRY_HISTORY**: 환불 재시도 이력
-- **SETTLEMENT_RETRY_HISTORY**: 정산 재시도 이력
-
----
-
-## 🔒 보안
-
-### 인증 방식
-
-1. **JWT 기반 무상태 인증**
-   - Access Token (1시간)
-   - Refresh Token (7일)
-   - HttpOnly Cookie로 안전하게 전달
-
-2. **Google OTP 2단계 인증**
-   - TOTP 기반 OTP 생성
-   - 백업 코드 제공 (최대 10개)
-
-3. **OAuth 2.0 소셜 로그인**
-   - Kakao, Google 지원
-   - 기존 계정 연동 가능
-
-### 권한 체계
-
-| 권한 | 설명 |
-|------|------|
-| `USER` | 일반 사용자 (기본) |
-| `ADMIN` | 관리자 (상품 관리, 대시보드 접근) |
-
-### 보안 기능
-
-- 비밀번호 암호화 (BCrypt)
-- 계정 잠금 정책 (5회 실패 시 자동 잠금)
-- 로그인 이력 추적
-- CORS 화이트리스트 설정
-- SQL Injection 방지 (MyBatis PreparedStatement)
-- XSS 방지 (입력값 검증)
-
----
-
-## 🚢 배포
-
-### 프로덕션 체크리스트
-
-배포 전 다음 항목들을 확인하세요:
-
-- [ ] MySQL 데이터베이스 준비 (UTF-8 설정)
-- [ ] `application-secret.properties` 설정 완료
-  - [ ] 데이터베이스 접속 정보
-  - [ ] JWT Secret Key (256비트 이상)
-  - [ ] 토스 페이먼츠 API 키
-  - [ ] 오픈뱅킹 API 키
-  - [ ] OAuth 클라이언트 ID/Secret
-  - [ ] Resend API 키
-  - [ ] PASS 본인인증 API 키
-- [ ] `application-prod.properties`에서 프론트엔드 URL 설정
-- [ ] WAR 파일 빌드 완료
-- [ ] 서버 방화벽 설정 (8080 포트 또는 설정한 포트)
-- [ ] SSL 인증서 설정 (HTTPS)
-- [ ] 환경 변수 `spring.profiles.active=prod` 설정
-
-### 빌드 및 배포
-
-```bash
-# 1. 프로덕션 빌드
-./mvnw clean package -DskipTests
-
-# 2. WAR 파일 서버로 전송
-scp target/moa-0.0.1-SNAPSHOT.war user@your-server:/path/to/deploy/
-
-# 3. 서버에서 실행
-java -jar moa-0.0.1-SNAPSHOT.war --spring.profiles.active=prod
-```
-
-### 추천 배포 방식
-
-- **Tomcat/WAS**: WAR 파일을 Tomcat의 webapps에 배포
-- **Standalone**: `java -jar` 명령어로 직접 실행
-- **Docker**: Docker 이미지 빌드 후 컨테이너 실행 (Dockerfile 작성 필요)
-- **CI/CD**: GitHub Actions, Jenkins 등으로 자동 배포
-
-> 상세한 배포 가이드는 별도 문서 `DEPLOY.md`를 참조하세요. (작성 예정)
-
----
-
-## 🗄️ 데이터베이스
-
-### ERD (주요 테이블 관계)
-
-```
-USERS (사용자)
-  ├── 1:N → OAUTH_ACCOUNT (소셜 로그인)
-  ├── 1:N → PARTY (파티장)
-  ├── 1:1 → ACCOUNT (정산 계좌)
-  └── 1:1 → USER_CARD (자동결제 카드)
-
-PARTY (파티)
-  ├── 1:N → PARTY_MEMBER (파티원)
-  └── N:1 → PRODUCT (상품)
-
-PARTY_MEMBER (파티원)
-  ├── 1:N → DEPOSIT (보증금)
-  └── 1:N → PAYMENT (월회비)
-
-SETTLEMENT (정산)
-  └── 1:N → TRANSFER_TRANSACTION (이체 거래)
-```
-
-### 총 27개 테이블
-
-- 회원 관련: 8개 (USERS, OAUTH_ACCOUNT, BLACKLIST 등)
-- 상품/구독: 3개 (CATEGORY, PRODUCT, SUBSCRIPTION)
-- 파티: 2개 (PARTY, PARTY_MEMBER)
-- 결제/보증금: 4개 (DEPOSIT, PAYMENT, PAYMENT_RETRY_HISTORY 등)
-- 정산: 3개 (SETTLEMENT, SETTLEMENT_RETRY_HISTORY, TRANSFER_TRANSACTION)
-- 오픈뱅킹: 2개 (BANK_CODE, ACCOUNT_VERIFICATION)
-- 커뮤니티/알림: 4개 (COMMUNITY, PUSH 등)
-- 기타: 1개 (CHATBOT_KNOWLEDGE - 추후 개발 예정)
-
-스키마 파일: `src/main/resources/moa_schema_20251211_1.sql`
-
----
-
-## 🧪 테스트
-
-### 테스트 실행
-
-```bash
-# 전체 테스트 실행
-./mvnw test
-
-# 특정 테스트 클래스 실행
-./mvnw test -Dtest=PartyServiceTest
-
-# 테스트 커버리지 리포트 생성 (Jacoco 설정 필요)
-./mvnw test jacoco:report
-```
-
-### 테스트 도구
-
-- **JUnit 5**: 단위 테스트 프레임워크
-- **Mockito**: 모킹 라이브러리
-- **jqwik**: Property-Based Testing
-- **H2 Database**: 테스트용 in-memory DB
-- **Spring Boot Test**: 통합 테스트
-
----
-
-## 🏗️ 설계 철학
-
-### 확장 가능한 아키텍처
-
-**오픈뱅킹 사례**: 현재는 1원 인증만 구현되어 있지만, 추후 오픈뱅킹 API를 사용할 수 있을 때 구현체만 교체하면 자동 이체 기능을 쉽게 추가할 수 있도록 인터페이스 기반으로 설계되었습니다.
-
-```java
-// 인터페이스 설계로 확장 가능
-interface BankingService {
-    void verifyAccount();      // 현재: 1원 인증
-    void transfer();           // 추후: 자동 이체 구현
-}
-```
-
-### 재사용 가능한 컴포넌트
-
-- 템플릿 기반 이메일 발송
-- 템플릿 기반 알림 시스템
-- 공통 예외 처리
-- 재시도 메커니즘 추상화
-
----
-
-## 📝 TODO / 개발 예정 기능
-
-- [ ] AI 챗봇 (GPT-4o-mini + RAG) - 리팩토링 예정
-- [ ] 오픈뱅킹 자동 이체 (API 사용 가능 시 구현)
-- [ ] API 문서화 (Swagger/OpenAPI)
-- [ ] Docker 지원 (Dockerfile, docker-compose.yml)
-- [ ] CI/CD 파이프라인 구축
-- [ ] 모니터링 (Actuator, Prometheus)
-
----
-
-## 👥 팀 정보
-
-**4beans** 팀이 개발한 프로젝트입니다.
-
-### 기술 스택 선택 이유
-
-- **Spring Boot**: 빠른 개발과 엔터프라이즈급 안정성
-- **MyBatis**: 복잡한 쿼리 최적화 및 세밀한 제어
-- **JWT**: 확장 가능한 무상태 인증
-- **토스 페이먼츠**: 국내 최고의 개발자 경험
-- **오픈뱅킹**: 금융 서비스의 표준 플랫폼
-
----
-
-## 📄 라이선스
-
-이 프로젝트는 비공개 프로젝트입니다.
-
----
-
-## 📞 문의
-
-프로젝트 관련 문의사항이 있으시면 이슈를 등록해주세요.
-
-- **GitHub Issues**: [이슈 등록하기](https://github.com/yourusername/4beans-moa-back/issues)
-
----
-
-<div align="center">
-
-**Made with ❤️ by 4beans Team**
-
-</div>
+## 6. 프로젝트 보고서 (성과 및 트러블슈팅)
+
+### 6.1 주요 트러블슈팅: 대량 결제 트랜잭션의 롤백 방어
+- **문제 인식**: 스케줄러가 여러 건의 자동 결제를 한 번의 트랜잭션으로 처리할 때, 단 하나의 외부 API(토스) 타임아웃만 발생해도 **정상 결제된 다른 건들까지 모두 롤백(Rollback)**되는 치명적인 문제가 발생했습니다.
+- **문제 해결**: `@Transactional(propagation = Propagation.REQUIRES_NEW)` 옵션을 활용해 각 사용자의 결제 건마다 **독립적인 트랜잭션(격리)**을 부여했습니다. 이를 통해 일부 결제가 실패하더라도 나머지 정상 결제 건은 안전하게 DB에 커밋되도록 아키텍처를 개선했습니다.
+
+### 6.2 향후 발전 방향
+- 현재 구현된 1원 인증 기술을 기반으로, 추후 오픈뱅킹 API의 '자동 펌뱅킹(이체)' 기능을 연동하여 파티장에게 정산금을 입금해 주는 과정을 완전히 시스템화할 계획입니다.
+- AI 챗봇(RAG)을 도입하여 자주 묻는 질문(FAQ) 및 파티 규칙 안내에 대한 CS 대응을 자동화할 예정입니다.
