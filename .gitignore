@@ -93,6 +93,8 @@ application-secret.properties
 *APi Key*.txt
 *AcessKey*.txt
 *AccessKey*.txt
+모아계정.txt
+MoA_Bank V2 APi Key.txt
 
 ### 7. Test Cache Files ###
 # jqwik property-based testing database (local cache)
