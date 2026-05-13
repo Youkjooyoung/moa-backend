@@ -22,19 +22,19 @@ jobs:
     - name: Build with Maven
       run: ./mvnw clean package -DskipTests
 
-    # 1. 빌드된 JAR 파일을 서버로 복사
-    - name: Copy JAR to Server via SCP
+    # 1. 빌드된 WAR 파일을 서버로 복사
+    - name: Copy WAR to Server via SCP
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: 22
-        source: "target/*.jar"
-        target: "~/moa-deploy" # 서버의 배포 경로 (수정 필요)
+        source: "target/*.war"
+        target: "~/moa-deploy" # 서버의 배포 경로
         strip_components: 1
 
-    # 2. 서버에 접속하여 기존 프로세스 종료 및 새 JAR 실행
+    # 2. 서버에 접속하여 기존 프로세스 종료 및 새 애플리케이션 실행
     - name: Execute Deploy Script on Server
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -46,7 +46,7 @@ jobs:
           cd ~/moa-deploy
           
           # 기존 동작중인 자바 프로세스 종료
-          PID=$(pgrep -f moa-backend)
+          PID=$(pgrep -f moa-0.0.1-SNAPSHOT.war)
           if [ -z "$PID" ]; then
               echo "No running application found."
           else
@@ -54,6 +54,6 @@ jobs:
               kill -9 $PID
           fi
           
-          # 새 버전 백그라운드 실행 (JAR 파일명은 실제 프로젝트명에 맞게 수정 필요)
-          nohup java -jar moa-backend-0.0.1-SNAPSHOT.jar > application.log 2>&1 &
+          # 새 버전 백그라운드 실행
+          nohup java -jar moa-0.0.1-SNAPSHOT.war > application.log 2>&1 &
           echo "Deployment successful."
