@@ -27,7 +27,6 @@ import com.moa.domain.UserCard;
 import com.moa.domain.enums.PartyStatus;
 import com.moa.domain.enums.PaymentStatus;
 import com.moa.domain.enums.PushCodeType;
-import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.dto.payment.response.PaymentDetailResponse;
 import com.moa.dto.payment.response.PaymentResponse;
 import com.moa.dto.push.request.TemplatePushRequest;
@@ -47,7 +46,6 @@ public class PaymentServiceImpl implements PaymentService {
 
 	private final PaymentDao paymentDao;
 	private final PartyDao partyDao;
-	private final PartyMemberDao partyMemberDao;
 	private final TossPaymentService tossPaymentService;
 	private final UserCardDao userCardDao;
 	private final PaymentRetryService retryService;
@@ -269,7 +267,7 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = paymentDao.findLastMonthlyPayment(partyId, partyMemberId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
 
-		if (!"COMPLETED".equals(payment.getPaymentStatus())) {
+		if (payment.getPaymentStatus() != PaymentStatus.COMPLETED) {
 			throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS);
 		}
 

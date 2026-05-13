@@ -172,7 +172,9 @@ public class CommunityServiceImpl implements CommunityService {
 
         if (file != null && !file.isEmpty()) {
             fileOriginal = file.getOriginalFilename();
-            String extension = fileOriginal.substring(fileOriginal.lastIndexOf("."));
+            String extension = (fileOriginal != null && fileOriginal.contains("."))
+                    ? fileOriginal.substring(fileOriginal.lastIndexOf("."))
+                    : ".bin";
             fileUuid = UUID.randomUUID().toString() + extension;
             
             try {

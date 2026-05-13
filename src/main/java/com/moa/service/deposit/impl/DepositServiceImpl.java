@@ -20,7 +20,6 @@ import com.moa.domain.Product;
 import com.moa.domain.enums.DepositStatus;
 import com.moa.domain.enums.PushCodeType;
 import com.moa.dto.deposit.response.DepositResponse;
-import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.dto.push.request.TemplatePushRequest;
 import com.moa.service.deposit.DepositService;
 import com.moa.service.payment.TossPaymentService;
@@ -40,7 +39,6 @@ public class DepositServiceImpl implements DepositService {
     private final PartyDao partyDao;
     private final TossPaymentService tossPaymentService;
     private final ApplicationEventPublisher eventPublisher;
-    private final com.moa.dao.refund.RefundRetryHistoryDao refundRetryHistoryDao;
     private final RefundRetryService refundRetryService;
 
     private final PushService pushService;

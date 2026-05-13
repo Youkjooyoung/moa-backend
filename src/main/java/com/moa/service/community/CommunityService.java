@@ -2,7 +2,6 @@ package com.moa.service.community;
 
 import com.moa.dto.community.request.*;
 import com.moa.dto.community.response.*;
-import org.springframework.web.multipart.MultipartFile;
 
 public interface CommunityService {
     

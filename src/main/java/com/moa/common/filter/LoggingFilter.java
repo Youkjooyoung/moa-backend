@@ -1,6 +1,8 @@
 package com.moa.common.filter;
 
 import java.io.IOException;
+
+import org.springframework.lang.NonNull;
 import java.util.UUID;
 
 import org.slf4j.MDC;
@@ -27,7 +29,7 @@ public class LoggingFilter extends OncePerRequestFilter {
 	private static final String REQUEST_URI_KEY = "requestUri";
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
 			throws ServletException, IOException {
 
 		long startTime = System.currentTimeMillis();

@@ -34,7 +34,6 @@ public class MockOpenBankingService implements OpenBankingClient {
     private final AccountVerificationMapper verificationMapper;
     private final TransferTransactionMapper transactionMapper;
 
-    private static final int VERIFY_CODE_LENGTH = 4;
     private static final int VERIFY_EXPIRY_MINUTES = 5;
     private static final int MAX_VERIFY_ATTEMPTS = 3;
 
@@ -107,7 +106,7 @@ public class MockOpenBankingService implements OpenBankingClient {
             return InquiryVerifyResponse.fail("A0004", "인증 세션이 만료되었습니다");
         }
 
-        if (!"PENDING".equals(verification.getStatus())) {
+        if (verification.getStatus() != VerificationStatus.PENDING) {
             return InquiryVerifyResponse.fail("A0004", "이미 처리된 인증 세션입니다");
         }
 

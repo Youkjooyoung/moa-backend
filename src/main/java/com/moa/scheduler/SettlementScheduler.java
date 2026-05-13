@@ -29,7 +29,6 @@ public class SettlementScheduler {
 	private final SettlementDao settlementDao;
 	private final SettlementService settlementService;
 	private final ApplicationEventPublisher eventPublisher;
-	private static final int MAX_RETRY_ATTEMPTS = 3;
 	private static final int RETRY_DELAY_HOURS = 2;
 
 	@Scheduled(cron = "0 0 4 1 * *")

@@ -10,8 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.common.exception.BusinessException;
 import com.moa.common.exception.ErrorCode;
-import com.moa.dao.party.PartyDao;
-import com.moa.dao.partymember.PartyMemberDao;
 import com.moa.dao.payment.PaymentDao;
 import com.moa.dao.payment.PaymentRetryDao;
 import com.moa.domain.Payment;
@@ -19,7 +17,6 @@ import com.moa.domain.PaymentRetryHistory;
 import com.moa.domain.enums.PaymentStatus;
 import com.moa.service.payment.PaymentRetryService;
 import com.moa.service.payment.PaymentService;
-import com.moa.service.push.PushService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,18 +29,10 @@ public class PaymentRetryServiceImpl implements PaymentRetryService {
 	private final PaymentDao paymentDao;
 	private final PaymentService paymentService;
 
-	private final PushService pushService;
-	private final PartyDao partyDao;
-	private final PartyMemberDao partyMemberDao;
-
-	public PaymentRetryServiceImpl(PaymentRetryDao retryDao, PaymentDao paymentDao, @Lazy PaymentService paymentService,
-			PushService pushService, PartyDao partyDao, PartyMemberDao partyMemberDao) {
+	public PaymentRetryServiceImpl(PaymentRetryDao retryDao, PaymentDao paymentDao, @Lazy PaymentService paymentService) {
 		this.retryDao = retryDao;
 		this.paymentDao = paymentDao;
 		this.paymentService = paymentService;
-		this.pushService = pushService;
-		this.partyDao = partyDao;
-		this.partyMemberDao = partyMemberDao;
 	}
 
 	@Override

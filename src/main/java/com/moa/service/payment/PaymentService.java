@@ -3,7 +3,6 @@ package com.moa.service.payment;
 import java.util.List;
 
 import com.moa.domain.Payment;
-import com.moa.dto.payment.request.PaymentRequest;
 import com.moa.dto.payment.response.PaymentDetailResponse;
 import com.moa.dto.payment.response.PaymentResponse;
 

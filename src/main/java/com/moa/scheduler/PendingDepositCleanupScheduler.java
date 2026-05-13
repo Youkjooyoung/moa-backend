@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.moa.dao.deposit.DepositDao;
-import com.moa.dao.refund.RefundRetryHistoryDao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 public class PendingDepositCleanupScheduler {
 
 	private final DepositDao depositDao;
-	private final RefundRetryHistoryDao refundRetryHistoryDao;
 	private static final int PENDING_TIMEOUT_HOURS = 24;
 
 	@Scheduled(cron = "0 0 3 * * *")

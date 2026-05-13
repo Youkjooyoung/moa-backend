@@ -2,6 +2,8 @@ package com.moa.auth.filter;
 
 import java.io.IOException;
 
+import org.springframework.lang.NonNull;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,7 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtProvider jwtProvider;
 
 	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request) {
+	protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
 		String path = request.getRequestURI();
 
 		if (path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs"))
@@ -44,7 +46,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
 			throws ServletException, IOException {
 
 		try {

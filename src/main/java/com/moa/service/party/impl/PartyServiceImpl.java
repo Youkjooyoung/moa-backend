@@ -52,14 +52,13 @@ public class PartyServiceImpl implements PartyService {
 	private final PaymentService paymentService;
 	private final PushService pushService;
 	private final com.moa.service.payment.TossPaymentService tossPaymentService;
-	private final com.moa.service.refund.RefundRetryService refundRetryService;
 	private final UserDao userDao;
 	private final UserCardDao userCardDao;
 
 	public PartyServiceImpl(PartyDao partyDao, PartyMemberDao partyMemberDao, ProductDao productDao,
 			DepositService depositService, PaymentService paymentService, PushService pushService,
 			com.moa.service.payment.TossPaymentService tossPaymentService,
-			com.moa.service.refund.RefundRetryService refundRetryService, UserDao userDao, UserCardDao userCardDao) {
+			UserDao userDao, UserCardDao userCardDao) {
 		this.partyDao = partyDao;
 		this.partyMemberDao = partyMemberDao;
 		this.productDao = productDao;
@@ -67,7 +66,6 @@ public class PartyServiceImpl implements PartyService {
 		this.paymentService = paymentService;
 		this.pushService = pushService;
 		this.tossPaymentService = tossPaymentService;
-		this.refundRetryService = refundRetryService;
 		this.userDao = userDao;
 		this.userCardDao = userCardDao;
 	}

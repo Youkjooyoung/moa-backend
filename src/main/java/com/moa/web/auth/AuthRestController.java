@@ -63,7 +63,6 @@ public class AuthRestController {
 
 		String clientIp = extractClientIp(httpRequest);
 		String userAgent = httpRequest.getHeader("User-Agent");
-		String loginType = "PASSWORD";
 
 		try {
 			LoginResponse response = authService.login(request);

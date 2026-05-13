@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -38,7 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
 	private String communityAnswerUrlPrefix;
 
 	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
 
 		registry.addResourceHandler(profileUrlPrefix + "/**").addResourceLocations(getUriPath(profileUploadDir));
 
@@ -59,7 +60,7 @@ public class WebConfig implements WebMvcConfigurer {
 	}
 
 	@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
+	public void addViewControllers(@NonNull ViewControllerRegistry registry) {
 
 		registry.addViewController("/{path:^(?!api|oauth|uploads|assets|css|js|images|favicon\\.ico|index\\.html).*$}")
 				.setViewName("index.html");

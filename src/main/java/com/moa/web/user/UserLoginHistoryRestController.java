@@ -1,18 +1,15 @@
 package com.moa.web.user;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.moa.common.exception.ApiResponse;
-import com.moa.dto.auth.TokenResponse;
 import com.moa.dto.community.response.PageResponse;
 import com.moa.dto.user.response.LoginHistoryResponse;
 import com.moa.service.auth.LoginHistoryService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
