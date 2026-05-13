@@ -18,11 +18,15 @@ public class UserDummyGenerator {
 	private static final Random R = new Random();
 
 	public static void main(String[] args) {
+		if (args.length < 1) {
+			System.err.println("Usage: java UserDummyGenerator <password>");
+			System.exit(1);
+		}
 
 		Set<String> emails = new HashSet<>();
 		Set<String> phones = new HashSet<>();
 
-		String passwordHash = EncryptUtil.encode("1234");
+		String passwordHash = EncryptUtil.encode(args[0]);
 
 		System.out.println("INSERT INTO USERS (");
 		System.out.println("    USER_ID, PASSWORD, NICKNAME, PHONE,");
