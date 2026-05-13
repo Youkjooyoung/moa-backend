@@ -99,3 +99,7 @@ MoA_Bank V2 APi Key.txt
 ### 7. Test Cache Files ###
 # jqwik property-based testing database (local cache)
 .jqwik-database
+
+### 8. Git Tools ###
+bfg.jar
+..bfg-report/
