@@ -100,11 +100,11 @@ public class PassAuthServiceImpl implements PassAuthService {
 		ResponseEntity<Map<String, Object>> res = restTemplate.exchange("https://api.iamport.kr/users/getToken", HttpMethod.POST, req,
 				new org.springframework.core.ParameterizedTypeReference<Map<String, Object>>() {});
 
-		Map<String, Object> body = res.getBody();
-		if (body == null || body.get("response") == null) {
+		Map<String, Object> responseBody = res.getBody();
+		if (responseBody == null || responseBody.get("response") == null) {
 			throw new RuntimeException("토큰 응답이 비어있습니다.");
 		}
-		Map<String, Object> response = (Map<String, Object>) body.get("response");
+		Map<String, Object> response = (Map<String, Object>) responseBody.get("response");
 		return (String) response.get("access_token");
 	}
 }
