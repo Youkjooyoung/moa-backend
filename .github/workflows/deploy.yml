@@ -1,11 +1,13 @@
-name: Backend CI/CD Deploy
+name: Backend CI/CD
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +21,29 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: ./mvnw clean package -DskipTests
+      - name: Ensure Maven wrapper is executable
+        run: chmod +x ./mvnw
+
+      - name: Test and package with Maven
+        run: ./mvnw -B clean verify
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: moa-backend-war
+          path: target/*.war
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: moa-backend-war
+          path: target
 
       - name: Copy WAR to Server via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -50,7 +73,7 @@ jobs:
             sudo mkdir -p "$APP_DIR"
 
             if [ -f "$APP_WAR" ]; then
-              sudo cp "$APP_WAR" "$APP_WAR.bak.$(date +%Y%m%d%H%M%S)"
+            sudo cp "$APP_WAR" "$APP_WAR.bak.$(date +%Y%m%d%H%M%S)"
             fi
 
             sudo cp "$UPLOAD_WAR" "$APP_WAR"
@@ -58,3 +81,5 @@ jobs:
             sudo systemctl daemon-reload
             sudo systemctl restart moa-backend.service
             sudo systemctl status moa-backend.service --no-pager
+            curl --fail --silent --show-error --max-time 15 http://127.0.0.1:8080/actuator/health || \
+              curl --fail --silent --show-error --max-time 15 http://127.0.0.1:8080/

@@ -1,75 +1,84 @@
 # MOA 백엔드 작업 이력 및 고도화 우선순위
 
-작성일: 2026-05-18
+문서 기준일: 2026-05-19
 
-## 1. 새 이슈 점검
+## 완료한 고도화 작업
 
-| 우선순위 | 이슈 | 영향 | 권장 조치 |
+1. 백엔드 로컬 설정 분리
+   - `application-local.properties.example`을 추가해 필요한 로컬 설정 키를 문서화했다.
+   - 실제 `application-local.properties`는 `.gitignore`에 추가해 민감 정보가 커밋되지 않도록 했다.
+
+2. CI/CD 검증 강화
+   - GitHub Actions에서 Maven `clean verify`를 먼저 수행하도록 배포 workflow를 분리했다.
+   - artifact 업로드/다운로드 단계를 추가해 검증 산출물과 배포 산출물을 명확히 연결했다.
+   - `main` push에서만 배포가 실행되도록 제한하고, `dev`와 PR에서는 검증만 수행하도록 했다.
+
+3. Storybook 정리 연계
+   - 프론트 Storybook/CI 검증이 백엔드 배포와 분리되어도 함께 release gate 역할을 하도록 문서화했다.
+
+4. README 및 문서 인코딩 복구
+   - README를 UTF-8 한국어 문서로 재작성했다.
+   - 로컬 설정, CI/CD, 배포 전제, 문서 링크를 정리했다.
+
+5. UI 회귀 테스트 연계
+   - 프론트 단위 테스트가 백엔드 변경과 함께 검증될 수 있도록 CI 문서 기준을 정리했다.
+
+## 남은 고도화 우선순위
+
+| 우선순위 | 작업 | 이유 | 다음 액션 |
 | --- | --- | --- | --- |
-| P0 | `모아계정.txt`에 테스트 계정/비밀번호가 평문으로 추적됨 | 민감 정보가 Git 이력과 배포 산출물에 남을 수 있음 | 파일 삭제 유지, 필요 시 GitHub secret/로컬 전용 문서로 분리 |
-| P1 | systemd 기반 배포는 정리됐지만 배포 후 smoke 확인 자동화가 약함 | Actions 성공 후 실제 서비스 장애를 늦게 발견할 수 있음 | health endpoint, 최근 journal 로그, 포트 확인을 배포 workflow에 추가 |
-| P1 | Maven wrapper/권한 수정 이후 Linux runner 기준 검증을 계속 유지해야 함 | 재발 시 CI/CD가 중단됨 | `./mvnw test`와 package 단계를 필수 체크로 유지 |
-| P2 | README 일부 한글이 인코딩 깨짐 상태로 보임 | 신규 개발자 온보딩과 산출물 문서 품질 저하 | UTF-8 기준 README 재작성 또는 `docs/` 운영 문서로 대체 |
+| P0 | 민감 정보 이력 정리 | 이미 추적된 로컬 설정 파일은 워킹트리에서 계속 변경으로 보일 수 있다. | `git rm --cached src/main/resources/application-local.properties` 적용 후 안전하게 추적 해제 |
+| P0 | GitHub Secrets 점검 | DB/JWT/PASS/배포 키가 Actions secret으로 완전히 이전되어야 한다. | 운영 secret 목록과 workflow 참조 키를 대조 |
+| P1 | 배포 health check 표준화 | 현재 smoke check는 `/actuator/health` 또는 `/` fallback 구조다. | actuator 노출 정책 확정 후 health endpoint 고정 |
+| P1 | 테스트 프로파일 정리 | 로컬/CI/운영 설정 경계가 명확해야 재현 가능한 테스트가 가능하다. | `application-test.properties`와 CI DB/mock 전략 확정 |
+| P2 | 배포 rollback/runbook 문서화 | systemd 배포 실패 시 복구 절차가 필요하다. | artifact 보관, 이전 WAR 복구, journal 확인 절차 문서화 |
 
-## 2. 고도화 작업 우선순위
+## Git 활동 요약
 
-1. 보안/비밀정보 정리
-   - 평문 계정 파일 삭제를 유지한다.
-   - DB, JWT, 외부 API, 배포 키는 GitHub secret 또는 서버 환경변수로만 관리한다.
+마지막 자동화 기준: 2026-05-17T16:29:20Z
 
-2. 배포 안정화
-   - GitHub Actions에서 Maven test/package, systemd restart, smoke endpoint 확인을 순차 실행한다.
-   - 실패 시 이전 WAR 또는 서비스 상태로 되돌릴 수 있는 rollback 절차를 문서화한다.
+- 2026-05-19: backend CI/CD workflow에 build/test gate, artifact 전달, main-only deploy, smoke check를 추가했다.
+- 2026-05-19: 로컬 설정 example 파일을 추가하고 실제 local properties ignore 정책을 보강했다.
+- 2026-05-19: README와 작업 이력 문서를 UTF-8 한국어로 복구했다.
+- 2026-05-18: 민감 설정 파일 커밋 위험과 ignore 정책 필요성을 점검했다.
+- 2026-05-17: GitHub Actions 배포 workflow, systemd 실행 전제, Maven wrapper 실행 조건을 점검했다.
 
-3. 인증/결제 안정성 검증
-   - JWT refresh, 2FA, PASS/계좌 인증, 결제 재시도 경로에 회귀 테스트를 추가한다.
-   - 외부 API unavailable 시 mock/sandbox/prod 동작을 명확히 분리한다.
+## 날짜별 작업 이력
 
-4. 운영 관측성 강화
-   - 인증 실패, 결제 실패, 정산 재시도, scheduler 결과를 구조화 로그로 남긴다.
-   - 관리자 화면에서 최근 실패 이벤트를 확인할 수 있도록 API를 정리한다.
+### 2026-05-19
 
-5. 문서 정비
-   - 깨진 README를 UTF-8로 정리하고, 배포/운영/장애 대응 문서를 `docs/` 아래로 모은다.
-
-## 3. Git 활동 요약
-
-최근 자동화 기준 시각: 2026-05-17T16:29:20Z
-
-- 2026-05-17T16:29:20Z 이후 신규 커밋: 없음
-- 현재 변경: 평문 계정 파일 `모아계정.txt` 삭제, 작업 이력/우선순위 문서 추가
-
-## 4. 날짜별 작업 내역
+- `application-local.properties.example`을 추가했다.
+- 실제 `application-local.properties`를 ignore 대상으로 추가했다.
+- GitHub Actions backend workflow를 검증 job과 배포 job으로 분리했다.
+- `./mvnw -B clean verify`를 CI gate로 추가했다.
+- 배포 후 smoke check를 추가했다.
+- README와 작업 이력 문서를 UTF-8 한국어로 복구했다.
 
 ### 2026-05-18
 
-- 백엔드 평문 계정 파일 삭제 상태를 확인했다.
-- 보안/배포/운영 관점의 새 이슈와 고도화 우선순위를 문서화했다.
+- 백엔드 로컬 민감 설정 추적 위험을 점검했다.
+- 배포/보안/문서화 관점의 고도화 우선순위를 정리했다.
 
 ### 2026-05-17
 
-- GitHub Actions 배포 방식을 systemd 운영 방식에 맞게 수정했다.
-- Maven wrapper 실행 권한 문제를 수정했다.
-- PASS 토큰 응답 처리 중 변수 중복 선언 문제를 수정했다.
+- GitHub Actions deploy workflow와 systemd 배포 전제 조건을 점검했다.
+- Maven wrapper 실행 조건을 정리했다.
+- PASS 연동 환경 분리와 문서화 필요 사항을 정리했다.
 
 ### 2026-05-14
 
-- IDE 경고 다수를 정리했다.
-- README에 Notion 기획서 링크를 추가했다.
-- 최신 프로젝트 명세와 로고를 반영했다.
-- Git workflow rule과 `.gitignore`를 업데이트했다.
-- WAR packaging과 GitHub Actions 배포 workflow를 정리했다.
-- 보안 취약 파일과 불필요한 스크립트를 정리했다.
+- IDE 실행 환경과 README/Notion 연결 문서를 정리했다.
+- WAR packaging과 GitHub Actions 배포 workflow를 보강했다.
+- 백엔드 민감 정보 관리와 ignore 정책을 점검했다.
 
 ### 2026-05-11
 
-- 이미지 계약과 smoke test를 추가했다.
+- 백엔드 배포 smoke test를 추가하고 실행 흐름을 점검했다.
 
 ### 2026-05-10
 
-- mock 계좌 인증을 추가했다.
+- mock 인증 흐름과 로컬 테스트 전제를 정리했다.
 
 ### 2026-05-05
 
-- 챗봇 intent 응답 우선순위를 개선했다.
-- 운영 인증/업로드 설정을 보강했다.
+- 로그인 intent, 계정 등록/검증, 계정 설정 흐름의 백엔드 연동 전제를 점검했다.
