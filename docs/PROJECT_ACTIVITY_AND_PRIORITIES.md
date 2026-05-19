@@ -2,6 +2,14 @@
 
 문서 기준일: 2026-05-19
 
+## 2026-05-19 자동화 재점검 결과
+
+- Git 상태: `dev` 브랜치가 `origin/dev`와 동기화되어 있고 워킹트리는 clean 상태다.
+- 새 코드 이슈: 이번 점검에서 백엔드 소스의 신규 미커밋 변경은 발견하지 못했다.
+- 민감 파일 상태: `application-secret.properties`, `src/main/resources/keystore/`, `MoA_Bank V2 APi Key.txt`는 Git 추적 대상이 아니며 `.gitignore` 규칙으로 막혀 있다.
+- 검증 제한: Maven `clean verify`는 현재 네트워크 제한으로 Spring Boot parent POM을 받을 수 없어 로컬 실행이 막혔다.
+- 남은 보안 리스크: 민감 파일이 로컬 디스크에는 남아 있으므로 운영 secret의 GitHub Secrets 이관 여부와 키 회전 여부를 별도로 확정해야 한다.
+
 ## 완료한 고도화 작업
 
 1. 백엔드 로컬 설정 분리
@@ -27,15 +35,20 @@
 
 | 우선순위 | 작업 | 이유 | 다음 액션 |
 | --- | --- | --- | --- |
-| P0 | 민감 정보 이력 정리 | 이미 추적된 로컬 설정 파일은 워킹트리에서 계속 변경으로 보일 수 있다. | `git rm --cached src/main/resources/application-local.properties` 적용 후 안전하게 추적 해제 |
-| P0 | GitHub Secrets 점검 | DB/JWT/PASS/배포 키가 Actions secret으로 완전히 이전되어야 한다. | 운영 secret 목록과 workflow 참조 키를 대조 |
+| P0 | GitHub Secrets 및 키 회전 점검 | DB/JWT/PASS/은행 API/배포 키가 Actions secret과 서버 환경변수로 완전히 이전되어야 한다. | 운영 secret 목록, workflow 참조 키, 서버 환경변수를 대조하고 필요한 키를 회전 |
+| P0 | 로컬 민감 파일 보관 정책 확정 | 파일은 Git에서 제외되어 있지만 로컬 디스크에 남아 있어 백업/공유 과정에서 노출될 수 있다. | `application-secret.properties`, keystore, 은행 API 키 파일의 보관 위치와 삭제/암호화 정책 확정 |
+| P1 | Maven 의존성 캐시/미러 정리 | 네트워크 제한 환경에서는 parent POM을 받을 수 없어 자동화 검증이 재현되지 않는다. | 사내/로컬 Maven mirror 또는 검증용 dependency cache 정책 확정 |
 | P1 | 배포 health check 표준화 | 현재 smoke check는 `/actuator/health` 또는 `/` fallback 구조다. | actuator 노출 정책 확정 후 health endpoint 고정 |
 | P1 | 테스트 프로파일 정리 | 로컬/CI/운영 설정 경계가 명확해야 재현 가능한 테스트가 가능하다. | `application-test.properties`와 CI DB/mock 전략 확정 |
 | P2 | 배포 rollback/runbook 문서화 | systemd 배포 실패 시 복구 절차가 필요하다. | artifact 보관, 이전 WAR 복구, journal 확인 절차 문서화 |
 
 ## Git 활동 요약
 
-마지막 자동화 기준: 2026-05-17T16:29:20Z
+이번 재점검 기준: 2026-05-19T09:36:33+09:00
+
+- 2026-05-19: `90e4717`에서 backend CI/CD gate, artifact 전달, main-only deploy, local config ignore 정책을 강화했다.
+- 2026-05-18: `bae5b74`에서 백엔드 우선순위 문서와 민감 계정 파일 제거 작업을 정리했다.
+- 2026-05-19 재점검: 이후 신규 커밋은 없고 `dev`와 `origin/dev`는 동기화 상태다.
 
 - 2026-05-19: backend CI/CD workflow에 build/test gate, artifact 전달, main-only deploy, smoke check를 추가했다.
 - 2026-05-19: 로컬 설정 example 파일을 추가하고 실제 local properties ignore 정책을 보강했다.
@@ -47,6 +60,10 @@
 
 ### 2026-05-19
 
+- 자동화 재점검에서 Git 상태, ignore 정책, 로컬 민감 파일 추적 여부를 확인했다.
+- `application-secret.properties`, keystore, 은행 API 키 파일이 Git 추적 대상이 아니며 ignore 처리되어 있음을 확인했다.
+- Maven 검증은 네트워크 제한으로 Spring Boot parent POM 다운로드가 막혀 완료하지 못했다.
+- 남은 고도화 우선순위를 로컬 설정 추적 해제에서 secret 운영/키 회전 점검으로 갱신했다.
 - `application-local.properties.example`을 추가했다.
 - 실제 `application-local.properties`를 ignore 대상으로 추가했다.
 - GitHub Actions backend workflow를 검증 job과 배포 job으로 분리했다.
