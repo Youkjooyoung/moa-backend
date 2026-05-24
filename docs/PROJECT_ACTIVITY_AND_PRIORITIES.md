@@ -1,89 +1,82 @@
 # MOA 백엔드 작업 이력 및 고도화 우선순위
 
-문서 기준일: 2026-05-20
+문서 기준일: 2026-05-23
 
-## 2026-05-20 자동화 점검 결과
+## 2026-05-23 자동화 점검 결과
 
-- Git 상태: `dev` 브랜치에서 작업 중이며, 점검 전 변경 파일은 `docs/PROJECT_ACTIVITY_AND_PRIORITIES.md` 1개였다.
-- Skill/Agent 점검: 저장소 내 커스텀 Skill/Agent 파일은 발견되지 않았고, `senior-enhancement-lead`, `fullstack-product-ops`, `github:yeet` 지침을 적용했다.
-- AI 도구 흔적 정리: 기존 AI 도구 전용 규칙 파일을 제거하고 Codex용 `AGENTS.md`를 추가했다. 소스/문서 내 다른 AI 도구 노출 흔적은 추가로 발견되지 않았다.
-- 검증 제한: `.\mvnw.cmd -B clean verify`는 네트워크 제한으로 Spring Boot parent POM `3.5.8`을 Maven Central에서 받을 수 없어 실패했다.
-- 새 이슈: `src/main/resources/static`에 프론트 빌드 산출물이 추적되고 있어 프론트 배포물과 백엔드 정적 리소스가 어긋날 위험이 있다.
+- 적용 지침: `senior-enhancement-lead`, `fullstack-product-ops`를 확인했고, 저장소 내 `AGENTS.md` 지침을 우선 적용했다.
+- 생성된 Skill/Agent 검색: 저장소 내부의 별도 `SKILL.md`, `.agents`, `.codex` 작업 Skill은 발견되지 않았다. 현재 작업에는 기존 Skill 조합으로 충분해 새 Skill은 생성하지 않았다.
+- Git 상태: `moa-backend`는 독립 Git 저장소이며 현재 브랜치는 `dev`, 원격은 `origin/dev`와 연결되어 있다.
+- Git 활동: 마지막 자동화 실행 이후 새 원격 커밋은 확인되지 않았다. 최신 커밋은 `90e4717 Harden backend CI and local config handling`이다.
+- AI 도구 흔적 정리: `.cursorrules`는 삭제 상태이며, Codex 기준 지침은 `AGENTS.md`로 정리되어 있다. Claude/Gemini/Anthropic 문자열 검색 결과는 추가 발견되지 않았다.
+- 민감 파일 점검: `MoA_Bank V2 APi Key.txt`, `application-local.properties`, `application-secret.properties`, keystore, logs, target 산출물은 ignore 상태이며 이번 커밋 대상에서 제외한다.
+- 새 이슈: 백엔드 ignore 목록에 로컬 로그와 `target` 산출물이 대량 존재한다. 커밋 대상은 아니지만 공유/백업 폴더 정책을 분리해야 한다.
+- 새 이슈: `src/main/resources/static`과 `src/main/resources/assets`에 프론트 빌드 산출물 경계가 남아 있다. S3/CloudFront 배포와 WAR 정적 리소스 역할을 확정해야 한다.
+- 새 이슈: `JwtSecretGenerator`, `UserDummyGenerator` 같은 운영 소스 트리 유틸은 실행 경로와 사용 목적을 분리해야 한다.
+- 검증 결과: `.\mvnw.cmd -B clean verify`는 Maven Central 접근 제한으로 Spring Boot parent POM `3.5.8`을 받을 수 없어 실패했다. 현재 실패 원인은 코드 컴파일 오류가 아니라 네트워크 차단이다.
 
-## 완료한 고도화 작업
-
-1. 백엔드 로컬 설정 분리
-   - `application-local.properties.example`을 추가해 필요한 로컬 설정 키를 문서화했다.
-   - 실제 `application-local.properties`는 `.gitignore`에 추가해 민감 정보가 커밋되지 않도록 했다.
-
-2. CI/CD 검증 강화
-   - GitHub Actions에서 Maven `clean verify`를 먼저 수행하도록 배포 workflow를 분리했다.
-   - artifact 업로드/다운로드 단계를 추가해 검증 산출물과 배포 산출물을 명확히 연결했다.
-   - `main` push에서만 배포가 실행되도록 제한하고, `dev`와 PR에서는 검증만 수행하도록 했다.
-
-3. Storybook 정리 연계
-   - 프론트 Storybook/CI 검증이 백엔드 배포와 분리되어도 함께 release gate 역할을 하도록 문서화했다.
-
-4. README 및 문서 인코딩 복구
-   - README를 UTF-8 한국어 문서로 재작성했다.
-   - 로컬 설정, CI/CD, 배포 전제, 문서 링크를 정리했다.
-
-5. UI 회귀 테스트 연계
-   - 프론트 단위 테스트가 백엔드 변경과 함께 검증될 수 있도록 CI 문서 기준을 정리했다.
-
-6. Codex 작업 지침 정리
-   - 기존 AI 도구 전용 규칙 파일을 제거했다.
-   - 백엔드 저장소용 `AGENTS.md`를 추가해 Codex 기준 작업/검증 규칙을 문서화했다.
-
-## 남은 고도화 우선순위
+## 현재 고도화 우선순위
 
 | 우선순위 | 작업 | 이유 | 다음 액션 |
 | --- | --- | --- | --- |
-| P0 | GitHub Secrets 및 키 회전 점검 | DB/JWT/PASS/은행 API/배포 키가 Actions secret과 서버 환경변수로 완전히 이전되어야 한다. | 운영 secret 목록, workflow 참조 키, 서버 환경변수를 대조하고 필요한 키를 회전 |
-| P0 | 로컬 민감 파일 보관 정책 확정 | 파일은 Git에서 제외되어 있지만 로컬 디스크에 남아 있어 백업/공유 과정에서 노출될 수 있다. | `application-secret.properties`, keystore, 은행 API 키 파일의 보관 위치와 삭제/암호화 정책 확정 |
-| P1 | Maven 의존성 캐시/미러 정리 | 네트워크 제한 환경에서는 parent POM을 받을 수 없어 자동화 검증이 재현되지 않는다. | 사내/로컬 Maven mirror 또는 검증용 dependency cache 정책 확정 |
-| P1 | 백엔드 static 프론트 산출물 관리 정책 확정 | `src/main/resources/static`에 빌드 산출물이 추적되어 프론트 최신 배포물과 백엔드 WAR 내 정적 리소스가 달라질 수 있다. | 백엔드가 정적 프론트를 서빙해야 하는지 결정하고, 필요 시 생성/동기화 스크립트와 ignore 정책을 정리 |
-| P1 | 배포 health check 표준화 | 현재 smoke check는 `/actuator/health` 또는 `/` fallback 구조다. | actuator 노출 정책 확정 후 health endpoint 고정 |
-| P1 | 테스트 프로파일 정리 | 로컬/CI/운영 설정 경계가 명확해야 재현 가능한 테스트가 가능하다. | `application-test.properties`와 CI DB/mock 전략 확정 |
-| P2 | 배포 rollback/runbook 문서화 | systemd 배포 실패 시 복구 절차가 필요하다. | artifact 보관, 이전 WAR 복구, journal 확인 절차 문서화 |
+| P0 | GitHub Secrets 및 서버 환경변수 전체 점검 | DB/JWT/PASS/결제/배포 키가 Actions secret과 서버 환경변수로 안전하게 이관되어야 한다. | 운영 secret 목록과 workflow 참조값 대조 |
+| P0 | 로컬 민감 파일 보관 정책 확정 | Git에서는 제외되어도 로컬/백업 공유 과정에서 노출될 수 있다. | secret, keystore, API 키 파일 위치와 삭제/암호화 기준 확정 |
+| P0 | 프론트 빌드 산출물 경계 정리 | 백엔드 WAR에 정적 프론트 산출물이 섞이면 S3/CloudFront 배포물과 불일치할 수 있다. | 백엔드에서 서빙할 정적 파일 범위 결정 후 ignore/build 스크립트 정리 |
+| P0 | fixture 민감 문자열 표준화 | 샘플 비밀번호/계정 문자열이 실제 secret처럼 보이면 점검 노이즈와 오해가 생긴다. | test SQL fixture임을 명시하고 더미 값 네이밍 정리 |
+| P1 | Maven 의존성 캐시/미러 정리 | 네트워크 제한 환경에서 `clean verify` 재현성이 낮다. | 사내/로컬 Maven mirror 또는 dependency cache 절차 문서화 |
+| P1 | health check 표준화 | 배포 smoke check 기준이 명확해야 rollback 판단이 가능하다. | actuator 노출 정책과 고정 health endpoint 결정 |
+| P1 | 테스트 프로파일 정리 | 로컬/CI/운영 설정 경계가 명확해야 테스트가 안정화된다. | `application-test.properties`와 mock DB 전략 확정 |
+| P2 | 배포 rollback/runbook 문서화 | systemd 배포 실패 시 복구 절차가 필요하다. | artifact 보관, 이전 WAR 복구, journal 확인 절차 작성 |
+| P2 | 개발 유틸 실행 경로 분리 | secret generator와 dummy generator가 운영 코드처럼 보인다. | `src/test`, 별도 CLI, 또는 문서화된 ops script로 이동 검토 |
 
 ## Git 활동 요약
 
-이번 재점검 기준: 2026-05-20T11:30:00+09:00
-
-- 2026-05-20: 자동화 점검에서 Codex용 `AGENTS.md`를 추가하고 기존 AI 도구 전용 규칙 파일을 제거했다.
-- 2026-05-20: Maven 검증은 네트워크 제한으로 실패했고, 추적 중인 백엔드 static 프론트 산출물을 새 이슈로 기록했다.
+- 2026-05-23: 자동화 점검에서 새 원격 커밋 없음, AI 도구 흔적 추가 발견 없음, ignore된 민감/산출 파일 대량 존재, Maven 네트워크 차단을 재확인했다.
 - 2026-05-19: `90e4717`에서 backend CI/CD gate, artifact 전달, main-only deploy, local config ignore 정책을 강화했다.
 - 2026-05-18: `bae5b74`에서 백엔드 우선순위 문서와 민감 계정 파일 제거 작업을 정리했다.
 
 ## 날짜별 작업 이력
 
-### 2026-05-20
+### 2026-05-23
 
 - 자동화 메모리와 저장소 지침을 확인했다.
-- 저장소 내 커스텀 Skill/Agent 파일을 검색했고, 별도 파일은 발견하지 못했다.
-- 기존 AI 도구 전용 규칙 파일을 제거하고 Codex용 `AGENTS.md`를 추가했다.
-- 다른 AI 도구 문구 노출 여부를 검색했고 추가 정리 대상은 발견하지 못했다.
-- `.\mvnw.cmd -B clean verify`를 실행했으나 네트워크 제한으로 Spring Boot parent POM 다운로드가 실패했다.
+- 적용 가능한 Skill과 저장소 내부 Agent/Skill 파일을 검색했고, 별도 새 Skill 생성은 필요 없음을 확인했다.
+- `dev` 브랜치와 `origin/dev` 연결 상태, 최근 커밋 이력을 확인했다.
+- 마지막 자동화 실행 이후 새 커밋이 없음을 확인했다.
+- `.cursorrules` 삭제 상태와 `AGENTS.md` 추가 상태를 확인했다.
+- Claude/Gemini/Anthropic 문자열 검색에서 추가 흔적이 없음을 확인했다.
+- 신규 이슈로 로컬 로그/target 산출물 보관 정책, 정적 리소스 배포 경계, 개발 유틸 분리를 재기록했다.
+- `.\mvnw.cmd -B clean verify`를 실행했으나 네트워크 제한으로 parent POM 다운로드가 막혀 실패했다.
+
+### 2026-05-22
+
+- 자동화 메모리와 저장소 지침을 확인했다.
+- 정적 빌드 산출물 경계, 개발 유틸 분리, fixture 민감 문자열 표준화, Maven 검증 재현성을 기록했다.
+
+### 2026-05-21
+
+- 상위 폴더가 Git 저장소가 아니며 `moa-backend`가 독립 Git 저장소임을 확인했다.
+- 신규 이슈로 프론트 빌드 산출물 혼재, 개발 유틸 콘솔 출력, Maven 검증 재현성 문제를 기록했다.
+
+### 2026-05-20
+
+- Codex 자동화 점검에서 기존 AI 도구 전용 규칙 파일을 제거하고 `AGENTS.md` 기준 작업 지침으로 정리했다.
+- Maven 검증이 네트워크 제한으로 실패할 수 있음을 기록했다.
 - `src/main/resources/static`에 추적 중인 프론트 빌드 산출물이 있음을 확인하고 고도화 우선순위에 반영했다.
 
 ### 2026-05-19
 
-- 자동화 재점검에서 Git 상태, ignore 정책, 로컬 민감 파일 추적 여부를 확인했다.
-- `application-secret.properties`, keystore, 은행 API 키 파일이 Git 추적 대상이 아니며 ignore 처리되어 있음을 확인했다.
-- Maven 검증은 네트워크 제한으로 Spring Boot parent POM 다운로드가 막혀 완료하지 못했다.
-- 남은 고도화 우선순위를 로컬 설정 추적 해제에서 secret 운영/키 회전 점검으로 갱신했다.
 - `application-local.properties.example`을 추가했다.
 - 실제 `application-local.properties`를 ignore 대상으로 추가했다.
 - GitHub Actions backend workflow를 검증 job과 배포 job으로 분리했다.
 - `./mvnw -B clean verify`를 CI gate로 추가했다.
 - 배포 후 smoke check를 추가했다.
-- README와 작업 이력 문서를 UTF-8 한국어로 복구했다.
+- README와 작업 이력 문서를 UTF-8 한국어 기준으로 복구했다.
 
 ### 2026-05-18
 
 - 백엔드 로컬 민감 설정 추적 위험을 점검했다.
-- 배포/보안/문서화 관점의 고도화 우선순위를 정리했다.
+- 배포, 보안, 문서화 관점의 고도화 우선순위를 정리했다.
 
 ### 2026-05-17
 
@@ -93,18 +86,18 @@
 
 ### 2026-05-14
 
-- IDE 실행 환경과 README/Notion 연결 문서를 정리했다.
+- IDE 경고를 정리하고 README/Notion 연결 문서를 업데이트했다.
 - WAR packaging과 GitHub Actions 배포 workflow를 보강했다.
 - 백엔드 민감 정보 관리와 ignore 정책을 점검했다.
 
 ### 2026-05-11
 
-- 백엔드 배포 smoke test를 추가하고 실행 흐름을 점검했다.
+- 백엔드 이미지 계약과 smoke test를 추가했다.
 
 ### 2026-05-10
 
-- mock 인증 흐름과 로컬 테스트 전제를 정리했다.
+- mock 은행 계좌 인증 흐름을 추가했다.
 
 ### 2026-05-05
 
-- 로그인 intent, 계정 등록/검증, 계정 설정 흐름의 백엔드 연동 전제를 점검했다.
+- 챗봇 intent, 계정 등록/검증, 운영 인증과 업로드 설정을 개선했다.
